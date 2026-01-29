@@ -469,8 +469,6 @@ return (
   </button>
 </div>
 
-            </div>
-
       <div className="content">
   {tabActiva === 'precios' && (
   <div>
