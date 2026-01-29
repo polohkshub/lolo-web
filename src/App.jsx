@@ -485,6 +485,7 @@ return (
                   onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
                   style={{fontSize: '1.25rem', padding: '1rem'
                   outline: 'none'
+                  border: 'none'
                   }}
                   autoFocus
                 />
