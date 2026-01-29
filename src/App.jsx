@@ -468,7 +468,6 @@ return (
     <BarChart3 /> REPORTES
   </button>
 </div>
-      </div>
 
       <div className="content">
   {tabActiva === 'precios' && (
