@@ -360,46 +360,52 @@ const LOLOApp = () => {
   };
 
   const importarProductos = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const text = event.target.result;
-        const lines = text.split('\n').slice(1);
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = async (event) => {
+    try {
+      const text = event.target.result;
+      const lines = text.split('\n').slice(1); // Salta el header
+      
+      let importados = 0;
+      
+      for (const line of lines) {
+        if (!line.trim()) continue;
         
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          
-          const [producto, costo, envio, , , ct_ganancia, proveedor, rubro, stock] = line.split(',');
-          
-          const { precioVenta, ganancia } = calcularPrecioVenta(costo, envio, ct_ganancia);
-          
-          const nuevoProd = {
-            producto: producto?.trim() || '',
-            costo: parseFloat(costo) || 0,
-            envio: parseFloat(envio) || 0,
-            precio_venta: precioVenta,
-            ganancia: ganancia,
-            ct_ganancia: parseFloat(ct_ganancia) || 80,
-            proveedor: proveedor?.trim() || '',
-            rubro: rubro?.trim() || '',
-            stock: parseInt(stock) || 0
-          };
-          
-          const docRef = await addDoc(collection(db, 'productos'), nuevoProd);
-          setProductos(prev => [...prev, {...nuevoProd, id: docRef.id}]);
-        }
+        // CAMBIO: Ahora usa punto y coma (;) en vez de coma
+        const [producto, costo, envio, , , ct_ganancia, proveedor, rubro, stock] = line.split(';');
         
-        alert('✅ Productos importados a la nube');
-      } catch (error) {
-        console.error('Error:', error);
-        alert('❌ Error al importar');
+        if (!producto || !producto.trim()) continue;
+        
+        const { precioVenta, ganancia } = calcularPrecioVenta(costo, envio, ct_ganancia);
+        
+        const nuevoProd = {
+          producto: producto.trim(),
+          costo: parseFloat(costo) || 0,
+          envio: parseFloat(envio) || 0,
+          precio_venta: precioVenta,
+          ganancia: ganancia,
+          ct_ganancia: parseFloat(ct_ganancia) || 80,
+          proveedor: proveedor?.trim() || '',
+          rubro: rubro?.trim() || '',
+          stock: parseInt(stock) || 0
+        };
+        
+        const docRef = await addDoc(collection(db, 'productos'), nuevoProd);
+        setProductos(prev => [...prev, {...nuevoProd, id: docRef.id}]);
+        importados++;
       }
-    };
-    reader.readAsText(file);
+      
+      alert(`✅ ${importados} productos importados a la nube`);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Error al importar: ' + error.message);
+    }
   };
+  reader.readAsText(file, 'UTF-8'); // Importante para caracteres especiales
+};
 
   const precioCalcResult = calcularPrecioVenta(
     formProd.costo, formProd.envio, formProd.ct_ganancia
