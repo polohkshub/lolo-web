@@ -18,7 +18,7 @@ const LOLOApp = () => {
   const [productos, setProductos] = useState([]);
   const [ventas, setVentas] = useState([]);
   const [carrito, setCarrito] = useState([]);
-  const [tabActiva, setTabActiva] = useState('productos');
+  const [tabActiva, setTabActiva] = useState('precios');;
   
   const [formProd, setFormProd] = useState({
     producto: '', costo: '', envio: '', ct_ganancia: '80',
@@ -451,24 +451,84 @@ return (
         </div>
       </div>
 
-      <div className="tabs-container">
-        <div className="tabs">
-          <button onClick={() => setTabActiva('productos')} className={`tab ${tabActiva === 'productos' ? 'active' : ''}`}>
-            <Package /> PRODUCTOS
-          </button>
-          <button onClick={() => setTabActiva('venta-rapida')} className={`tab ${tabActiva === 'venta-rapida' ? 'active' : ''}`}>
-            <DollarSign /> VENTA RÁPIDA
-          </button>
-          <button onClick={() => setTabActiva('kiosco')} className={`tab ${tabActiva === 'kiosco' ? 'active' : ''}`}>
-            <ShoppingCart /> PUNTO DE VENTA
-          </button>
-          <button onClick={() => setTabActiva('reportes')} className={`tab ${tabActiva === 'reportes' ? 'active' : ''}`}>
-            <BarChart3 /> REPORTES
-          </button>
-        </div>
+     <div className="tabs">
+  <button onClick={() => setTabActiva('precios')} className={`tab ${tabActiva === 'precios' ? 'active' : ''}`}>
+    <Search /> PRECIOS RÁPIDOS
+  </button>
+  <button onClick={() => setTabActiva('productos')} className={`tab ${tabActiva === 'productos' ? 'active' : ''}`}>
+    <Package /> PRODUCTOS
+  </button>
+  <button onClick={() => setTabActiva('venta-rapida')} className={`tab ${tabActiva === 'venta-rapida' ? 'active' : ''}`}>
+    <DollarSign /> VENTA RÁPIDA
+  </button>
+  <button onClick={() => setTabActiva('kiosco')} className={`tab ${tabActiva === 'kiosco' ? 'active' : ''}`}>
+    <ShoppingCart /> PUNTO DE VENTA
+  </button>
+  <button onClick={() => setTabActiva('reportes')} className={`tab ${tabActiva === 'reportes' ? 'active' : ''}`}>
+    <BarChart3 /> REPORTES
+  </button>
+</div>
       </div>
 
       <div className="content">
+  {tabActiva === 'precios' && (
+  <div>
+    <div className="card" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+      <h2 className="card-title" style={{color: 'white', fontSize: '1.5rem'}}>🔍 BUSCADOR DE PRECIOS</h2>
+      
+      <div className="search-box" style={{marginTop: '1rem', background: 'white'}}>
+                <Search />
+                <input
+                  type="text"
+                  placeholder="Escribe las primeras letras del producto..."
+                  value={busquedaPrecios}
+                  onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
+                  style={{fontSize: '1.25rem', padding: '1rem'}}
+                  autoFocus
+                />
+              </div>
+            </div>
+            
+            <div className="card">
+              {busquedaPrecios.length === 0 ? (
+                <div className="empty-state" style={{padding: '3rem', fontSize: '1.125rem'}}>
+                  👆 Escribe las primeras letras para buscar productos
+                </div>
+              ) : (
+                <div className="table-container">
+                  <table>
+                    <thead className="bg-purple">
+                      <tr>
+                        <th style={{fontSize: '1.125rem', padding: '1rem'}}>PRODUCTO</th>
+                        <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>PRECIO</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productos
+                        .filter(p => p.producto.toUpperCase().startsWith(busquedaPrecios))
+                        .sort((a, b) => a.producto.localeCompare(b.producto))
+                        .map((p) => (
+                          <tr key={p.id}>
+                            <td style={{fontSize: '1.25rem', padding: '1rem', fontWeight: 600}}>{p.producto}</td>
+                            <td className="text-center" style={{fontSize: '1.5rem', padding: '1rem', fontWeight: 'bold', color: '#10b981'}}>
+                              ${p.precio_venta.toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      {productos.filter(p => p.producto.toUpperCase().startsWith(busquedaPrecios)).length === 0 && (
+                        <tr>
+                          <td colSpan="2" className="empty-state" style={{padding: '2rem'}}>
+                            No se encontraron productos que empiecen con "{busquedaPrecios}"
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {tabActiva === 'productos' && (
           <div>
             <div className="card">
