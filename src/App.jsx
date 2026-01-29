@@ -483,8 +483,9 @@ return (
                   placeholder="Escribe las primeras letras del producto..."
                   value={busquedaPrecios}
                   onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
-                  style={{fontSize: '1.25rem', padding: '1rem'}}
+                  style={{fontSize: '1.25rem', padding: '1rem'
                   outline: 'none'
+                  }}
                   autoFocus
                 />
               </div>
