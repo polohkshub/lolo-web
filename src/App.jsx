@@ -478,17 +478,19 @@ return (
       
       <div className="search-box" style={{marginTop: '1rem', background: 'white'}}>
                 <Search />
-                <input
-                  type="text"
-                  placeholder="Escribe las primeras letras del producto..."
-                  value={busquedaPrecios}
-                  onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
-                  style={{fontSize: '1.25rem', padding: '1rem'
-                  outline: 'none'
-                  border: 'none'
-                  }}
-                  autoFocus
-                />
+               <input
+  type="text"
+  placeholder="Escribe las primeras letras del producto..."
+  value={busquedaPrecios}
+  onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
+  style={{
+    fontSize: '1.25rem',
+    padding: '1rem',
+    outline: 'none',
+    border: 'none'
+  }}
+  autoFocus
+/>
               </div>
             </div>
             
