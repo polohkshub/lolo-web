@@ -19,6 +19,7 @@ const LOLOApp = () => {
   const [ventas, setVentas] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [tabActiva, setTabActiva] = useState('precios');;
+  const [busquedaPrecios, setBusquedaPrecios] = useState('');
   
   const [formProd, setFormProd] = useState({
     producto: '', costo: '', envio: '', ct_ganancia: '80',
