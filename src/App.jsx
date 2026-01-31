@@ -529,7 +529,7 @@ return (
                           <tr key={p.id}>
                             <td style={{fontSize: '1.25rem', padding: '1rem', fontWeight: 600}}>{p.producto}</td>
                             <td className="text-center" style={{fontSize: '1.5rem', padding: '1rem', fontWeight: 'bold', color: '#10b981'}}>
-                              ${(p.precio_venta * 1).toFixed(2)}
+                              ${(p.precio_venta * 0.8).toFixed(2)}
                             </td>
                             <td className="text-center" style={{fontSize: '1.5rem', padding: '1rem', fontWeight: 'bold', color: '#3b82f6'}}>
                               ${p.precio_venta.toFixed(2)}
@@ -684,7 +684,7 @@ return (
                       {sugerencias.map(p => (
                         <div key={p.id} onClick={() => { 
                                           const precioFinal = ventaRapida.formaPago === 'Contado' 
-                                            ? (p.precio_venta * 0.8).toFixed(2) 
+                                            ? (p.precio_venta * 1).toFixed(2) 
                                             : p.precio_venta.toFixed(2);
                                           setVentaRapida({...ventaRapida, producto: p.producto, precio: precioFinal}); 
                                           setSugerencias([]); 
@@ -792,7 +792,7 @@ return (
                         {sugerenciasKiosco.map(p => (
                           <div key={p.id} onClick={() => { 
                                             const precioFinal = ventaKiosco.formaPago === 'Contado' 
-                                              ? (p.precio_venta * 0.8).toFixed(2) 
+                                              ? (p.precio_venta * 1).toFixed(2) 
                                               : p.precio_venta.toFixed(2);
                                               setItemKiosco({ producto: p.producto, precio: precioFinal, cantidad: itemKiosco.cantidad }); 
                                               setSugerenciasKiosco([]); 
