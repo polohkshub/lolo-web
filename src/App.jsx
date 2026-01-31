@@ -513,7 +513,7 @@ return (
       <div className="content">
   {tabActiva === 'precios' && (
   <div>
-    <div className="card" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+      <div className="card" style={{background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)'}}>
       <h2 className="card-title" style={{color: 'white', fontSize: '1.5rem'}}>🔍 BUSCADOR DE PRECIOS</h2>
       
       <div className="search-box" style={{marginTop: '1rem', background: 'white'}}>
@@ -542,7 +542,7 @@ return (
               ) : (
                 <div className="table-container">
                   <table>
-                    <thead className="bg-sky-300">
+                    <thead className="bg-sky-400">
                       <tr>
                         <th style={{fontSize: '1.125rem', padding: '1rem'}}>PRODUCTO</th>
                         <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>💵 CONTADO (20% OFF)</th>
