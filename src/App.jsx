@@ -486,8 +486,8 @@ return (
         <div className="header-content">
           <div className="logo">🛍️</div>
           <div>
-            <h1 className="title">LOLO - Sobre Ruedas</h1>
-            <p className="subtitle">Sistema con Firebase ☁️🔥</p>
+            <h1 className="title">LOLO Sobre Ruedas</h1>
+            <p className="subtitle">Sistema Firebase ☁️🔥 NTO</p>
           </div>
         </div>
       </div>
@@ -520,7 +520,7 @@ return (
                 <Search />
                <input
   type="text"
-  placeholder="Escribe las primeras letras del producto..."
+  placeholder="producto..."
   value={busquedaPrecios}
   onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
   style={{
