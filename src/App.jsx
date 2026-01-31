@@ -542,7 +542,7 @@ return (
               ) : (
                 <div className="table-container">
                   <table>
-                    <thead className="bg-purple">
+                    <thead className="bg-sky-300">
                       <tr>
                         <th style={{fontSize: '1.125rem', padding: '1rem'}}>PRODUCTO</th>
                         <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>💵 CONTADO (20% OFF)</th>
@@ -927,7 +927,7 @@ return (
             <div className="card bg-purple">
               <h2 className="card-title">📤 EXPORTAR</h2>
               <button onClick={exportarCierreDia} className="btn btn-purple">
-                <Download /> 📊 CIERRE HOY
+                <Download /> 📊 EXPORTAR
               </button>
             </div>
             
