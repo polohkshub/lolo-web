@@ -431,19 +431,19 @@ const subtotal = cantidad * precio;
   
   const calcularTotalesSeguro = () => {
     if (!ventasFiltradas || ventasFiltradas.length === 0) {
-      return { transferencia: 0, contado: 0, total: 0 };
+      return { tarjeta: 0, contado: 0, total: 0 };
     }
     
-    const transferencia = ventasFiltradas
-      const transferencia = ventasFiltradas
-      .filter(v => v.formaPago === 'Tarjeta' || v.formaPago === 'Transferencia')
+    const tarjeta = ventasFiltradas
+      const tarjeta = ventasFiltradas
+      .filter(v => v.formaPago === 'Tarjeta' || v.formaPago === 'tarjeta')
       .reduce((sum, v) => sum + (v.total || 0), 0);
     
     const contado = ventasFiltradas
       .filter(v => v.formaPago === 'Contado')
       .reduce((sum, v) => sum + (v.total || 0), 0);
     
-    return { transferencia, contado, total: transferencia + contado };
+    return { tarjeta, contado, total: tarjeta + contado };
   };
   
   const totales = calcularTotalesSeguro();
@@ -944,7 +944,7 @@ return (
                 <div className="totals-grid">
                   <div>
                     <div style={{fontSize: '0.875rem', fontWeight: 600, color: '#6b7280'}}>💳 Tarjeta:</div>
-                    <div className="text-blue" style={{fontSize: '1.5rem', fontWeight: 'bold'}}>${totales.transferencia.toFixed(2)}</div>
+                    <div className="text-blue" style={{fontSize: '1.5rem', fontWeight: 'bold'}}>${totales.tarjeta.toFixed(2)}</div>
                   </div>
                   
                   <div>
