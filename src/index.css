@@ -36,7 +36,7 @@ body {
 .title {
   font-size: 1.875rem;
   font-weight: bold;
-  color: #7e22ce;
+  color: #1d4ed8;
   margin: 0;
 }
 
@@ -80,7 +80,7 @@ body {
 
 .tab.active {
   border-bottom-color: #9333ea;
-  color: #7e22ce;
+  color: #1d4ed8;
   background: #faf5ff;
 }
 
