@@ -435,7 +435,6 @@ const subtotal = cantidad * precio;
     }
     
     const tarjeta = ventasFiltradas
-      const tarjeta = ventasFiltradas
       .filter(v => v.formaPago === 'Tarjeta' || v.formaPago === 'tarjeta')
       .reduce((sum, v) => sum + (v.total || 0), 0);
     
