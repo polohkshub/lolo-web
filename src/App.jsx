@@ -419,7 +419,35 @@ const subtotal = cantidad * precio;
   };
   reader.readAsText(file, 'UTF-8'); // Importante para caracteres especiales
 };
-
+const eliminarVenta = async (venta) => {
+  if (!window.confirm(`¿Anular esta venta?\n\nCliente: ${venta.cliente}\nProducto: ${venta.producto}\nTotal: $${venta.total.toFixed(2)}\n\n⚠️ Se devolverá el stock`)) {
+    return;
+  }
+  
+  try {
+    // Borrar de Firebase
+    await deleteDoc(doc(db, 'ventas', venta.id));
+    
+    // Devolver stock
+    const prod = productos.find(p => p.producto === venta.producto);
+    if (prod) {
+      const nuevoStock = prod.stock + venta.cantidad;
+      await updateDoc(doc(db, 'productos', prod.id), { stock: nuevoStock });
+      setProductos(productos.map(p => 
+        p.id === prod.id ? {...p, stock: nuevoStock} : p
+      ));
+    }
+    
+    // Actualizar lista de ventas
+    setVentas(ventas.filter(v => v.id !== venta.id));
+    setVentasFiltradas(ventasFiltradas.filter(v => v.id !== venta.id));
+    
+    alert('✅ Venta anulada y stock devuelto');
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error al anular venta');
+  }
+};  
   const precioCalcResult = calcularPrecioVenta(
     formProd.costo, formProd.envio, formProd.ct_ganancia
   );
@@ -617,14 +645,13 @@ return (
                       <th className="text-center">Gan</th>
                       <th className="text-center">%</th>
                       <th>Proveedor</th>
-                      <th>Rubro</th>
                       <th className="text-center">Stock</th>
                       <th className="text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {productosFiltrados.length === 0 ? (
-                      <tr><td colSpan="10" className="empty-state">No hay productos</td></tr>
+                      <tr><td colSpan="9" className="empty-state">No hay productos</td></tr>
                     ) : (
                       productosFiltrados.map((p) => (
                         <tr key={p.id}>
@@ -635,7 +662,6 @@ return (
                           <td className="text-center text-blue">${p.ganancia.toFixed(2)}</td>
                           <td className="text-center">{p.ct_ganancia.toFixed(0)}%</td>
                           <td>{p.proveedor}</td>
-                          <td>{p.rubro}</td>
                           <td className="text-center font-bold">{p.stock}</td>
                           <td className="text-center">
                             <div className="flex gap-3" style={{justifyContent: 'center'}}>
@@ -918,21 +944,27 @@ return (
                       <th className="text-center">Cant</th>
                       <th className="text-center">Total</th>
                       <th className="text-center">Pago</th>
+                      <th className="text-center">Acción</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ventasFiltradas.length === 0 ? (
-                      <tr><td colSpan="6" className="empty-state">Sin ventas</td></tr>
+                      <tr><td colSpan="7" className="empty-state">Sin ventas</td></tr>
                     ) : (
-                      ventasFiltradas.map((v) => (
-                        <tr key={v.id}>
-                          <td style={{fontSize: '0.75rem'}}>{v.fecha}</td>
-                          <td>{v.cliente}</td>
-                          <td>{v.producto}</td>
-                          <td className="text-center">{v.cantidad}</td>
-                          <td className="text-center text-green font-bold">${v.total.toFixed(2)}</td>
-                          <td className="text-center" style={{fontSize: '0.75rem'}}>{v.formaPago}</td>
-                        </tr>
+                    ventasFiltradas.map((v) => (
+                       <tr key={v.id}>
+                       <td style={{fontSize: '0.75rem'}}>{v.fecha}</td>
+                       <td>{v.cliente}</td>
+                       <td>{v.producto}</td>
+                       <td className="text-center">{v.cantidad}</td>
+                       <td className="text-center text-green font-bold">${v.total.toFixed(2)}</td>
+                       <td className="text-center" style={{fontSize: '0.75rem'}}>{v.formaPago}</td>
+                       <td className="text-center">
+                         <button onClick={() => eliminarVenta(v)} className="btn btn-red" style={{padding: '0.25rem 0.5rem'}}>
+                            <Trash2 />
+                         </button>
+                       </td>
+                     </tr>
                       ))
                     )}
                   </tbody>
