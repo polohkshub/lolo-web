@@ -193,7 +193,7 @@ const LOLOApp = () => {
 
     // Aplicar 20% descuento si es Contado
     if (ventaRapida.formaPago === 'Contado') {
-      precio = precio * 0.8; // 20% descuento
+      precio = precio * 1; // 20% descuento
     }
 
 const total = cantidad * precio;
@@ -248,7 +248,7 @@ const total = cantidad * precio;
 
     // Aplicar 20% descuento si es Contado
     if (ventaKiosco.formaPago === 'Contado') {
-       precio = precio * 0.8;
+       precio = precio * 1;
     }
 
 const subtotal = cantidad * precio;
@@ -684,7 +684,7 @@ return (
                       {sugerencias.map(p => (
                         <div key={p.id} onClick={() => { 
                                           const precioFinal = ventaRapida.formaPago === 'Contado' 
-                                            ? (p.precio_venta * 1).toFixed(2) 
+                                            ? (p.precio_venta * 0.8).toFixed(2) 
                                             : p.precio_venta.toFixed(2);
                                           setVentaRapida({...ventaRapida, producto: p.producto, precio: precioFinal}); 
                                           setSugerencias([]); 
@@ -792,7 +792,7 @@ return (
                         {sugerenciasKiosco.map(p => (
                           <div key={p.id} onClick={() => { 
                                             const precioFinal = ventaKiosco.formaPago === 'Contado' 
-                                              ? (p.precio_venta * 1).toFixed(2) 
+                                              ? (p.precio_venta * 0.8).toFixed(2) 
                                               : p.precio_venta.toFixed(2);
                                               setItemKiosco({ producto: p.producto, precio: precioFinal, cantidad: itemKiosco.cantidad }); 
                                               setSugerenciasKiosco([]); 
