@@ -346,25 +346,6 @@ const subtotal = cantidad * precio;
     descargarCSV(csv, 'productos.csv');
   };
 
-  const exportarCierreDia = () => {
-    const hoy = new Date().toLocaleDateString('es-AR');
-    const ventasHoy = ventas.filter(v => v.fecha.includes(hoy));
-    
-    if (ventasHoy.length === 0) {
-      alert('📊 No hay ventas para hoy');
-      return;
-    }
-    
-    const headers = ['Fecha', 'Cliente', 'Producto', 'Cantidad', 'Precio', 'Total', 'Forma_Pago'];
-    const csv = [
-      headers.join(','),
-      ...ventasHoy.map(v => [v.fecha, v.cliente, v.producto, v.cantidad, v.precio, v.total, v.formaPago].join(','))
-    ].join('\n');
-    
-    const fecha = new Date().toISOString().split('T')[0];
-    descargarCSV(csv, `cierre_${fecha}.csv`);
-  };
-
   const descargarCSV = (contenido, nombre) => {
     const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
