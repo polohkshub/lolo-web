@@ -19,6 +19,7 @@ const LOLOApp = () => {
   const [ventas, setVentas] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [tabActiva, setTabActiva] = useState('precios');;
+  const [busquedaPrecios, setBusquedaPrecios] = useState('');
   
   const [formProd, setFormProd] = useState({
     producto: '', costo: '', envio: '', ct_ganancia: '80',
@@ -188,8 +189,14 @@ const LOLOApp = () => {
       return;
     }
     
-    const precio = parseFloat(ventaRapida.precio);
-    const total = cantidad * precio;
+    let precio = parseFloat(ventaRapida.precio);
+
+    // Aplicar 20% descuento si es Contado
+    if (ventaRapida.formaPago === 'Contado') {
+      precio = precio * 0.8; // 20% descuento
+    }
+
+const total = cantidad * precio;
     
     const venta = {
       fecha: new Date().toLocaleString('es-AR'),
@@ -237,8 +244,14 @@ const LOLOApp = () => {
       return;
     }
     
-    const precio = parseFloat(itemKiosco.precio);
-    const subtotal = cantidad * precio;
+    let precio = parseFloat(itemKiosco.precio);
+
+    // Aplicar 20% descuento si es Contado
+    if (ventaKiosco.formaPago === 'Contado') {
+       precio = precio * 0.8;
+    }
+
+const subtotal = cantidad * precio;
     
     setCarrito([...carrito, {
       producto: itemKiosco.producto,
@@ -418,18 +431,19 @@ const LOLOApp = () => {
   
   const calcularTotalesSeguro = () => {
     if (!ventasFiltradas || ventasFiltradas.length === 0) {
-      return { transferencia: 0, contado: 0, total: 0 };
+      return { tarjeta: 0, contado: 0, total: 0 };
     }
     
-    const transferencia = ventasFiltradas
-      .filter(v => v.formaPago === 'Transferencia')
+    const tarjeta = ventasFiltradas
+      const tarjeta = ventasFiltradas
+      .filter(v => v.formaPago === 'Tarjeta' || v.formaPago === 'tarjeta')
       .reduce((sum, v) => sum + (v.total || 0), 0);
     
     const contado = ventasFiltradas
       .filter(v => v.formaPago === 'Contado')
       .reduce((sum, v) => sum + (v.total || 0), 0);
     
-    return { transferencia, contado, total: transferencia + contado };
+    return { tarjeta, contado, total: tarjeta + contado };
   };
   
   const totales = calcularTotalesSeguro();
@@ -468,7 +482,6 @@ return (
     <BarChart3 /> REPORTES
   </button>
 </div>
-      </div>
 
       <div className="content">
   {tabActiva === 'precios' && (
@@ -478,14 +491,19 @@ return (
       
       <div className="search-box" style={{marginTop: '1rem', background: 'white'}}>
                 <Search />
-                <input
-                  type="text"
-                  placeholder="Escribe las primeras letras del producto..."
-                  value={busquedaPrecios}
-                  onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
-                  style={{fontSize: '1.25rem', padding: '1rem'}}
-                  autoFocus
-                />
+               <input
+  type="text"
+  placeholder="Escribe las primeras letras del producto..."
+  value={busquedaPrecios}
+  onChange={(e) => setBusquedaPrecios(e.target.value.toUpperCase())}
+  style={{
+    fontSize: '1.25rem',
+    padding: '1rem',
+    outline: 'none',
+    border: 'none'
+  }}
+  autoFocus
+/>
               </div>
             </div>
             
@@ -500,9 +518,10 @@ return (
                     <thead className="bg-purple">
                       <tr>
                         <th style={{fontSize: '1.125rem', padding: '1rem'}}>PRODUCTO</th>
-                        <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>PRECIO</th>
+                        <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>💵 CONTADO (20% OFF)</th>
+                        <th className="text-center" style={{fontSize: '1.125rem', padding: '1rem'}}>💳 TARJETA</th>
                       </tr>
-                    </thead>
+                  </thead>
                     <tbody>
                       {productos
                         .filter(p => p.producto.toUpperCase().startsWith(busquedaPrecios))
@@ -511,13 +530,16 @@ return (
                           <tr key={p.id}>
                             <td style={{fontSize: '1.25rem', padding: '1rem', fontWeight: 600}}>{p.producto}</td>
                             <td className="text-center" style={{fontSize: '1.5rem', padding: '1rem', fontWeight: 'bold', color: '#10b981'}}>
+                              ${(p.precio_venta * 0.8).toFixed(2)}
+                            </td>
+                            <td className="text-center" style={{fontSize: '1.5rem', padding: '1rem', fontWeight: 'bold', color: '#3b82f6'}}>
                               ${p.precio_venta.toFixed(2)}
                             </td>
-                          </tr>
+                            </tr>
                         ))}
                       {productos.filter(p => p.producto.toUpperCase().startsWith(busquedaPrecios)).length === 0 && (
                         <tr>
-                          <td colSpan="2" className="empty-state" style={{padding: '2rem'}}>
+                          <td colSpan="3" className="empty-state" style={{padding: '2rem'}}>
                             No se encontraron productos que empiecen con "{busquedaPrecios}"
                           </td>
                         </tr>
@@ -649,10 +671,10 @@ return (
                 
                 <div className="form-field">
                   <label>Pago:</label>
-                  <select value={ventaRapida.formaPago} onChange={(e) => setVentaRapida({...ventaRapida, formaPago: e.target.value})}>
-                    <option>Contado</option>
-                    <option>Transferencia</option>
-                  </select>
+                 <select value={ventaRapida.formaPago} onChange={(e) => setVentaRapida({...ventaRapida, formaPago: e.target.value})}>
+                   <option>Contado</option>
+                   <option>Tarjeta</option>
+                 </select>
                 </div>
                 
                 <div className="form-field autocomplete">
@@ -661,7 +683,13 @@ return (
                   {sugerencias.length > 0 && (
                     <div className="suggestions">
                       {sugerencias.map(p => (
-                        <div key={p.id} onClick={() => { setVentaRapida({...ventaRapida, producto: p.producto, precio: p.precio_venta.toString()}); setSugerencias([]); }} className="suggestion-item">
+                        <div key={p.id} onClick={() => { 
+                                          const precioFinal = ventaRapida.formaPago === 'Contado' 
+                                            ? (p.precio_venta * 0.8).toFixed(2) 
+                                            : p.precio_venta.toFixed(2);
+                                          setVentaRapida({...ventaRapida, producto: p.producto, precio: precioFinal}); 
+                                          setSugerencias([]); 
+                                        }} className="suggestion-item">
                           {p.producto} - ${p.precio_venta.toFixed(2)} (Stock: {p.stock})
                         </div>
                       ))}
@@ -750,7 +778,7 @@ return (
                   <label>Pago:</label>
                   <select value={ventaKiosco.formaPago} onChange={(e) => setVentaKiosco({...ventaKiosco, formaPago: e.target.value})}>
                     <option>Contado</option>
-                    <option>Transferencia</option>
+                    <option>Tarjeta</option>
                   </select>
                 </div>
               </div>
@@ -763,7 +791,13 @@ return (
                     {sugerenciasKiosco.length > 0 && (
                       <div className="suggestions">
                         {sugerenciasKiosco.map(p => (
-                          <div key={p.id} onClick={() => { setItemKiosco({ producto: p.producto, precio: p.precio_venta.toString(), cantidad: itemKiosco.cantidad }); setSugerenciasKiosco([]); }} className="suggestion-item">
+                          <div key={p.id} onClick={() => { 
+                                            const precioFinal = ventaKiosco.formaPago === 'Contado' 
+                                              ? (p.precio_venta * 0.8).toFixed(2) 
+                                              : p.precio_venta.toFixed(2);
+                                              setItemKiosco({ producto: p.producto, precio: precioFinal, cantidad: itemKiosco.cantidad }); 
+                                              setSugerenciasKiosco([]); 
+                                            }} className="suggestion-item">
                             {p.producto} - ${p.precio_venta.toFixed(2)}
                           </div>
                         ))}
@@ -909,8 +943,8 @@ return (
               <div className="totals-box">
                 <div className="totals-grid">
                   <div>
-                    <div style={{fontSize: '0.875rem', fontWeight: 600, color: '#6b7280'}}>💳 Transferencia:</div>
-                    <div className="text-blue" style={{fontSize: '1.5rem', fontWeight: 'bold'}}>${totales.transferencia.toFixed(2)}</div>
+                    <div style={{fontSize: '0.875rem', fontWeight: 600, color: '#6b7280'}}>💳 Tarjeta:</div>
+                    <div className="text-blue" style={{fontSize: '1.5rem', fontWeight: 'bold'}}>${totales.tarjeta.toFixed(2)}</div>
                   </div>
                   
                   <div>
