@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import * as XLSX from 'xlsx';
 
 const Download = () => <span>📥</span>;
 const Upload = () => <span>📤</span>;
@@ -436,6 +437,125 @@ const eliminarVenta = async (venta) => {
       setProductos(productos.map(p => 
         p.id === prod.id ? {...p, stock: nuevoStock} : p
       ));
+      const exportarExcelCompleto = () => {
+  if (ventasFiltradas.length === 0) {
+    alert('⚠️ No hay ventas para exportar. Primero buscá por fecha.');
+    return;
+  }
+  
+  try {
+    // Crear workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Agrupar ventas por día
+    const ventasPorDia = {};
+    
+    ventasFiltradas.forEach(v => {
+      const fecha = v.fecha.split(' ')[0]; // Solo la fecha (sin hora)
+      if (!ventasPorDia[fecha]) {
+        ventasPorDia[fecha] = [];
+      }
+      ventasPorDia[fecha].push(v);
+    });
+    
+    // Datos para resumen
+    const resumenData = [];
+    
+    // Crear una hoja por cada día
+    Object.keys(ventasPorDia).sort().forEach(dia => {
+      const ventasDelDia = ventasPorDia[dia];
+      
+      // Preparar datos
+      const datos = ventasDelDia.map(v => ({
+        'Fecha': v.fecha,
+        'Cliente': v.cliente,
+        'Producto': v.producto,
+        'Cantidad': v.cantidad,
+        'Precio': v.precio,
+        'Total': v.total,
+        'Forma_Pago': v.formaPago
+      }));
+      
+      // Calcular subtotales
+      const totalContado = ventasDelDia
+        .filter(v => v.formaPago === 'Contado')
+        .reduce((sum, v) => sum + v.total, 0);
+      
+      const totalTarjeta = ventasDelDia
+        .filter(v => v.formaPago === 'Tarjeta' || v.formaPago === 'Transferencia')
+        .reduce((sum, v) => sum + v.total, 0);
+      
+      const totalDia = totalContado + totalTarjeta;
+      
+      // Agregar filas vacías y subtotales
+      datos.push({});
+      datos.push({
+        'Fecha': 'SUBTOTAL CONTADO',
+        'Cliente': '',
+        'Producto': '',
+        'Cantidad': '',
+        'Precio': '',
+        'Total': totalContado,
+        'Forma_Pago': ''
+      });
+      datos.push({
+        'Fecha': 'SUBTOTAL TARJETA',
+        'Cliente': '',
+        'Producto': '',
+        'Cantidad': '',
+        'Precio': '',
+        'Total': totalTarjeta,
+        'Forma_Pago': ''
+      });
+      datos.push({
+        'Fecha': 'TOTAL DÍA',
+        'Cliente': '',
+        'Producto': '',
+        'Cantidad': '',
+        'Precio': '',
+        'Total': totalDia,
+        'Forma_Pago': ''
+      });
+      
+      // Crear hoja
+      const ws = XLSX.utils.json_to_sheet(datos);
+      
+      // Agregar hoja al workbook (nombre = fecha)
+      XLSX.utils.book_append_sheet(wb, ws, dia);
+      
+      // Guardar para resumen
+      resumenData.push({
+        'Día': dia,
+        'Contado': totalContado,
+        'Tarjeta': totalTarjeta,
+        'Total': totalDia
+      });
+    });
+    
+    // Crear hoja RESUMEN TOTAL
+    const totalGeneral = {
+      'Día': 'TOTALES',
+      'Contado': resumenData.reduce((sum, d) => sum + d.Contado, 0),
+      'Tarjeta': resumenData.reduce((sum, d) => sum + d.Tarjeta, 0),
+      'Total': resumenData.reduce((sum, d) => sum + d.Total, 0)
+    };
+    
+    resumenData.push(totalGeneral);
+    
+    const wsResumen = XLSX.utils.json_to_sheet(resumenData);
+    XLSX.utils.book_append_sheet(wb, wsResumen, 'RESUMEN TOTAL');
+    
+    // Descargar archivo
+    const nombreArchivo = `ventas_${fechaDesde}_a_${fechaHasta}.xlsx`;
+    XLSX.writeFile(wb, nombreArchivo);
+    
+    alert(`✅ Excel exportado: ${nombreArchivo}`);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error al exportar: ' + error.message);
+  }
+};
     }
     
     // Actualizar lista de ventas
@@ -926,10 +1046,13 @@ return (
             
             <div className="card bg-purple">
               <h2 className="card-title">📤 EXPORTAR</h2>
-              <button onClick={exportarCierreDia} className="btn btn-purple">
-                <Download /> 📊 EXPORTAR
+              <button onClick={exportarExcelCompleto} className="btn btn-purple" style={{fontSize: '1.125rem', padding: '0.75rem 1.5rem'}}>
+                <Download /> 📊 EXPORTAR A EXCEL (.xlsx)
               </button>
-            </div>
+              <p style={{marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280'}}>
+                 * Primero buscá las ventas con los filtros de arriba
+               </p>
+             </div>
             
             <div className="card">
               <h3 className="card-title">📊 RESULTADOS</h3>
