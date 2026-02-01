@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import * as XLSX from 'xlsx';
 
 const Download = () => <span>📥</span>;
 const Upload = () => <span>📤</span>;
@@ -425,11 +424,106 @@ const eliminarVenta = async (venta) => {
   }
   
   try {
-    // Crear workbook
-    const wb = XLSX.utils.book_new();
-    
-    // Agrupar ventas por día
+    // Agrupar por día
     const ventasPorDia = {};
+    
+    ventasFiltradas.forEach(v => {
+      const dia = v.fecha.split(' ')[0];
+      if (!ventasPorDia[dia]) ventasPorDia[dia] = [];
+      ventasPorDia[dia].push(v);
+    });
+    
+    // Crear HTML para Excel
+    let html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>';
+    html += 'table {border-collapse: collapse; width: 100%;} ';
+    html += 'th, td {border: 1px solid black; padding: 8px; text-align: left;} ';
+    html += 'th {background-color: #9333ea; color: white; font-weight: bold;} ';
+    html += '.subtotal {background-color: #e0e0e0; font-weight: bold;} ';
+    html += '.total {background-color: #b0b0b0; font-weight: bold; font-size: 1.1em;} ';
+    html += '</style></head><body>';
+    
+    // Resumen
+    const resumen = [];
+    let totalGeneralContado = 0;
+    let totalGeneralTarjeta = 0;
+    
+    // Hoja por cada día
+    Object.keys(ventasPorDia).sort().forEach(dia => {
+      const ventas = ventasPorDia[dia];
+      
+      html += `<h2>DÍA: ${dia}</h2>`;
+      html += '<table><thead><tr>';
+      html += '<th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Total</th><th>Forma Pago</th>';
+      html += '</tr></thead><tbody>';
+      
+      let totalContado = 0;
+      let totalTarjeta = 0;
+      
+      ventas.forEach(v => {
+        html += '<tr>';
+        html += `<td>${v.fecha}</td>`;
+        html += `<td>${v.cliente}</td>`;
+        html += `<td>${v.producto}</td>`;
+        html += `<td>${v.cantidad}</td>`;
+        html += `<td>$${v.precio.toFixed(2)}</td>`;
+        html += `<td>$${v.total.toFixed(2)}</td>`;
+        html += `<td>${v.formaPago}</td>`;
+        html += '</tr>';
+        
+        if (v.formaPago === 'Contado') totalContado += v.total;
+        else totalTarjeta += v.total;
+      });
+      
+      const totalDia = totalContado + totalTarjeta;
+      
+      html += '<tr><td colspan="7"></td></tr>';
+      html += `<tr class="subtotal"><td colspan="5">SUBTOTAL CONTADO</td><td colspan="2">$${totalContado.toFixed(2)}</td></tr>`;
+      html += `<tr class="subtotal"><td colspan="5">SUBTOTAL TARJETA</td><td colspan="2">$${totalTarjeta.toFixed(2)}</td></tr>`;
+      html += `<tr class="total"><td colspan="5">TOTAL DÍA</td><td colspan="2">$${totalDia.toFixed(2)}</td></tr>`;
+      html += '</tbody></table><br><br>';
+      
+      resumen.push({ dia, contado: totalContado, tarjeta: totalTarjeta, total: totalDia });
+      totalGeneralContado += totalContado;
+      totalGeneralTarjeta += totalTarjeta;
+    });
+    
+    // Resumen total
+    html += '<h2>RESUMEN TOTAL</h2>';
+    html += '<table><thead><tr>';
+    html += '<th>Día</th><th>Contado</th><th>Tarjeta</th><th>Total</th>';
+    html += '</tr></thead><tbody>';
+    
+    resumen.forEach(r => {
+      html += '<tr>';
+      html += `<td>${r.dia}</td>`;
+      html += `<td>$${r.contado.toFixed(2)}</td>`;
+      html += `<td>$${r.tarjeta.toFixed(2)}</td>`;
+      html += `<td>$${r.total.toFixed(2)}</td>`;
+      html += '</tr>';
+    });
+    
+    html += `<tr class="total">`;
+    html += `<td>TOTALES</td>`;
+    html += `<td>$${totalGeneralContado.toFixed(2)}</td>`;
+    html += `<td>$${totalGeneralTarjeta.toFixed(2)}</td>`;
+    html += `<td>$${(totalGeneralContado + totalGeneralTarjeta).toFixed(2)}</td>`;
+    html += '</tr>';
+    html += '</tbody></table></body></html>';
+    
+    // Descargar
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `ventas_${fechaDesde}_a_${fechaHasta}.xls`;
+    link.click();
+    
+    alert(`✅ Excel exportado correctamente`);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error al exportar');
+  }
+};
     
     ventasFiltradas.forEach(v => {
       const fecha = v.fecha.split(' ')[0]; // Solo la fecha (sin hora)
